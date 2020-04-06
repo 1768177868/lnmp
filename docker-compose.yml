@@ -1,0 +1,79 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: my_mysql
+    restart: always
+    networks:
+      - web
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=12345678
+    volumes:
+      - ./wwwroot/mysql/config:/etc/mysql 
+      - ./wwwroot/mysql/log:/var/log/mysql  
+      - ./wwwroot/mysql/data:/var/lib/mysql 
+    ports:
+      - 3306:3306
+  php:
+    image: registry.cn-hangzhou.aliyuncs.com/wangxuancheng/php:7.4
+    restart: always
+    container_name: my_php
+    restart: always
+    networks:
+      - web
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./wwwroot/nginx/html:/var/www/html
+      - ./wwwroot/php/conf:/usr/local/etc/php 
+      - ./wwwroot/php/conf/conf.d:/usr/local/etc/php/conf.d 
+  nginx:
+    image: nginx:1.17
+    container_name: my_nginx
+    restart: always
+    ports:
+    - 80:80
+    - 443:443
+    networks:
+      - web
+    environment: 
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./wwwroot/nginx/log:/var/logs/nginx 
+      - ./wwwroot/nginx/conf.d:/etc/nginx/conf.d 
+      - ./wwwroot/nginx/html:/usr/share/nginx/html 
+  redis:
+    image: redis:5.0
+    container_name: my_redis
+    restart: always
+    networks:
+      - web
+    ports: 
+      - 6379:6379
+    volumes:
+      - ./wwwroot/redis/data:/data
+      - ./wwwroot/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+  phpmyadmin:
+    image: registry.cn-hangzhou.aliyuncs.com/wangxuancheng/phpmyadmin:5.0.2
+    container_name: my_phpmyadmin
+    restart: always
+    networks:
+      - web
+    ports:
+      - 888:80
+    volumes:
+      - ./wwwroot/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+      - ./wwwroot/phpmyadmin/php.ini:/usr/local/etc/php/conf.d/php.ini
+    environment:
+      - PMA_ARBITRARY=1 
+networks:
+  web:
+    
+
+
+
